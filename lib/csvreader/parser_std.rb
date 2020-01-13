@@ -150,11 +150,11 @@ def parse_escape( input, sep: )
   if input.peek == BACKSLASH
     input.getc ## eat-up backslash
     if (c=input.peek; c==BACKSLASH || c==LF || c==CR || c==sep || c==DOUBLE_QUOTE || c==SINGLE_QUOTE )
-      logger.debug "  add escaped char >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+      logger.debug { "  add escaped char >#{input.peek}< (#{input.peek.ord})" }
       value << input.getc     ## add escaped char (e.g. lf, cr, etc.)
     else
       ## unknown escape sequence; no special handling/escaping
-      logger.debug "  add backspace (unknown escape seq) >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+      logger.debug { "  add backspace (unknown escape seq) >#{input.peek}< (#{input.peek.ord})" }
       value << BACKSLASH
     end
   else
@@ -199,7 +199,7 @@ end
 
 def parse_field_until_sep( input, sep: )
   value = ""
-  logger.debug "start reg field - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+  logger.debug { "start reg field - peek >#{input.peek}< (#{input.peek.ord})" }
   ## consume simple value
   ##   until we hit "," or "\n" or "\r"
   ##    note: will eat-up quotes too!!!
@@ -207,7 +207,7 @@ def parse_field_until_sep( input, sep: )
     if input.peek == BACKSLASH
       value << parse_escape( input, sep: sep )
     else
-      logger.debug "  add char >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+      logger.debug { "  add char >#{input.peek}< (#{input.peek.ord})" }
       value << input.getc   ## note: eat-up all spaces (" ") and tabs (\t) too (strip trailing spaces at the end)
     end
   end
@@ -226,7 +226,7 @@ def parse_field( input, sep: )
   hashtag = config[:hashtag]
 
 
-  logger.debug "parse field"  if logger.debug?
+  logger.debug { "parse field" }
 
   skip_spaces( input )   ## strip leading spaces
 
@@ -242,7 +242,7 @@ def parse_field( input, sep: )
       # do nothing - keep value as is :-) e.g. "".
     end
   elsif input.peek == DOUBLE_QUOTE
-    logger.debug "start double_quote field - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+    logger.debug { "start double_quote field - peek >#{input.peek}< (#{input.peek.ord})" }
     value << parse_quote( input, sep: sep,
                                  opening_quote: DOUBLE_QUOTE,
                                  closing_quote: DOUBLE_QUOTE )
@@ -265,16 +265,16 @@ def parse_field( input, sep: )
       value = %Q{"#{value}"#{spaces}#{extra_value}}
     end
 
-    logger.debug "end double_quote field - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+    logger.debug { "end double_quote field - peek >#{input.peek}< (#{input.peek.ord})" }
   elsif input.peek == SINGLE_QUOTE    ## allow single quote too (by default)
-    logger.debug "start single_quote field - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+    logger.debug { "start single_quote field - peek >#{input.peek}< (#{input.peek.ord})" }
     value << parse_quote( input, sep: sep,
                                  opening_quote: SINGLE_QUOTE,
                                  closing_quote: SINGLE_QUOTE )
 
     ## note: always eat-up all trailing spaces (" ") and tabs (\t)
     skip_spaces( input )
-    logger.debug "end single_quote field - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+    logger.debug { "end single_quote field - peek >#{input.peek}< (#{input.peek.ord})" }
   elsif input.peek == "«"
     value << parse_quote( input, sep: sep,
                                  opening_quote: "«",
@@ -296,7 +296,7 @@ def parse_field( input, sep: )
                                  closing_quote: "‹" )
     skip_spaces( input )
   else
-    logger.debug "start reg field - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+    logger.debug { "start reg field - peek >#{input.peek}< (#{input.peek.ord})" }
     ## consume simple value
     ##   until we hit "," or "\n" or "\r"
     ##    note: will eat-up quotes too!!!
@@ -315,7 +315,7 @@ def parse_field( input, sep: )
         ## eat-up everything until end-of-line (eol)
         skip_until_eol( input )
       else
-        logger.debug "  add char >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+        logger.debug { "  add char >#{input.peek}< (#{input.peek.ord})" }
         value << input.getc   ## note: eat-up all spaces (" ") and tabs (\t) too (strip trailing spaces at the end)
       end
     end
@@ -340,7 +340,7 @@ def parse_field( input, sep: )
       # do nothing - keep value as is :-).
     end
 
-    logger.debug "end reg field - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+    logger.debug { "end reg field - peek >#{input.peek}< (#{input.peek.ord})" }
   end
 
   value
@@ -357,7 +357,7 @@ def parse_record( input, sep: )
      value = parse_field( input, sep: sep )
      value = value.tr( space, ' ' )   if space && value.is_a?( String )
 
-     logger.debug "value: »#{value}«"  if logger.debug?
+     logger.debug { "value: »#{value}«" }
      values << value
 
      if input.eof?
@@ -502,34 +502,34 @@ def parse_lines( input, sep:, &block )
     skipped_spaces = skip_spaces( input )
 
     if comment.nil? && (c=input.peek; c==COMMENT_HASH || c==COMMENT_PERCENT)
-      logger.debug "skipping comment (first) - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+      logger.debug { "skipping comment (first) - peek >#{input.peek}< (#{input.peek.ord})" }
       comment = input.getc  ## first comment line (determines/fixes "allowed" comment-style)
       skip_until_eol( input )
       skip_newline( input )
     elsif comment && input.peek == comment        ## (anther) comment line
-      logger.debug "skipping comment (follow-up) - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+      logger.debug { "skipping comment (follow-up) - peek >#{input.peek}< (#{input.peek.ord})" }
       skip_until_eol( input )
       skip_newline( input )
     elsif (c=input.peek; c==LF || c==CR || input.eof?)
-      logger.debug "skipping blank - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+      logger.debug { "skipping blank - peek >#{input.peek}< (#{input.peek.ord})" }
       skip_newline( input )
     elsif record_num == 0 && hashtag == false && has_seen_frontmatter == false && input.peek==DIRECTIVE
       ## note: "skip" directives for now
       has_seen_directive = true
-      logger.debug "skip directive"  if logger.debug?
+      logger.debug { "skip directive" }
       skip_until_eol( input )
       skip_newline( input )
     elsif record_num == 0 && hashtag == false && has_seen_directive == false && has_seen_frontmatter == false &&
           skipped_spaces == 0 && input.peekn(4) =~ /^---[\n\r \t]$/
       ## note: assume "---" (MUST BE) followed by newline (\r or \n) or space starts a meta block
       has_seen_frontmatter = true
-      logger.debug "start meta block"  if logger.debug?
+      logger.debug { "start meta block" }
       ## note: meta gets stored as object attribute (state/state/state!!)
       ##   use meta attribute to get meta data after reading first record
       @meta = parse_meta( input )   ## note: assumes a hash gets returned
-      logger.debug "  meta: >#{meta.inspect}<"  if logger.debug?
+      logger.debug { "  meta: >#{meta.inspect}<" }
     else
-      logger.debug "start record - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+      logger.debug { "start record - peek >#{input.peek}< (#{input.peek.ord})" }
 
       record = parse_record( input, sep: sep )
       record_num +=1

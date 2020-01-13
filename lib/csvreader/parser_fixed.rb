@@ -53,18 +53,18 @@ def parse_lines( input, width:, &block )
     ##    it will remove all trailing newlines from the string.
     ##    use line.sub(/[\n\r]*$/, '') or similar instead - why? why not?
     line = line.chomp( '' )
-    logger.debug "line:"                if logger.debug?
-    logger.debug line.pretty_inspect    if logger.debug?
+    logger.debug { "line:" }
+    logger.debug { line.pretty_inspect }
 
 
     ## skip empty lines and comments
     if line =~ /^[ \t]*$/   ## skip blank lines (with whitespace only)
-       logger.debug "skip blank line"    if logger.debug?
+       logger.debug { "skip blank line" }
        next
     end
 
     if line =~ /^[ \t]*#/   # start_with?( "#" ) -- skip comment lines (note: allow leading whitespaces)
-       logger.debug "skip comment line"   if logger.debug?
+       logger.debug { "skip comment line" }
        next
     end
 
@@ -81,7 +81,7 @@ def parse_lines( input, width:, &block )
       values = []
       offset = 0  # start position / offset
       width.each_with_index do |w,i|
-         logger.debug "[#{i}] start: #{offset}, width: #{w}"   if logger.debug?
+         logger.debug { "[#{i}] start: #{offset}, width: #{w}" }
 
          if w < 0   ## convention - if width negative, skip column
             # note: minus (-) and minus (-) equal plus (+)

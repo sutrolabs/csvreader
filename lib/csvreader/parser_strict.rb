@@ -153,7 +153,7 @@ def parse_field( input, sep: )
   quote   = config[:quote]
   escape  = config[:escape]
 
-  logger.debug "parse field - sep: >#{sep}< (#{sep.ord})"  if logger.debug?
+  logger.debug { "parse field - sep: >#{sep}< (#{sep.ord})" }
 
   if (c=input.peek; c==sep || c==LF || c==CR || input.eof?) ## empty unquoted field
     ## note: allows null = '' that is turn unquoted empty strings into null/nil
@@ -161,18 +161,18 @@ def parse_field( input, sep: )
     value = nil   if is_null?( value )
     ##  do nothing - keep value as is :-) e.g. "".
   elsif quote && input.peek == quote
-    logger.debug "start quote field - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+    logger.debug { "start quote field - peek >#{input.peek}< (#{input.peek.ord})" }
     value << parse_quote( input, sep: sep )
-    logger.debug "end double_quote field - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+    logger.debug { "end double_quote field - peek >#{input.peek}< (#{input.peek.ord})" }
   else
-    logger.debug "start reg field - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+    logger.debug { "start reg field - peek >#{input.peek}< (#{input.peek.ord})" }
     ## consume simple value
     ##   until we hit "," or "\n" or "\r" or stray (double) quote e.g (")
     while (c=input.peek; !(c==sep || c==LF || c==CR || input.eof? || (quote && c==quote)))
       if escape && input.peek == BACKSLASH
         value << parse_escape( input, sep: sep )
       else
-        logger.debug "  add char >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+        logger.debug { "  add char >#{input.peek}< (#{input.peek.ord})" }
         value << input.getc
       end
     end
@@ -181,7 +181,7 @@ def parse_field( input, sep: )
     value = nil  if is_null?( value )   ## note: null check only for UNQUOTED (not quoted/escaped) values
     # do nothing - keep value as is :-).
 
-    logger.debug "end reg field - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+    logger.debug { "end reg field - peek >#{input.peek}< (#{input.peek.ord})" }
   end
 
   value
@@ -194,7 +194,7 @@ def parse_record( input, sep: )
 
   loop do
      value = parse_field( input, sep: sep )
-     logger.debug "value: »#{value}«"  if logger.debug?
+     logger.debug { "value: »#{value}«" }
      values << value
 
      if input.eof?
@@ -254,10 +254,10 @@ def parse_lines( input, sep:, &block )
   loop do
     break if input.eof?
 
-    logger.debug "start record - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+    logger.debug { "start record - peek >#{input.peek}< (#{input.peek.ord})" }
 
     if comment && input.peek == comment        ## comment line
-      logger.debug "skipping comment - peek >#{input.peek}< (#{input.peek.ord})"  if logger.debug?
+      logger.debug { "skipping comment - peek >#{input.peek}< (#{input.peek.ord})" }
       skip_until_eol( input )
       skip_newline( input )
     else

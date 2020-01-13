@@ -80,8 +80,8 @@ def parse_lines( input, &block )
   ##   will NOT work with \r (old mac, any others?) only!!!!
   input.each_line do |line|
 
-    logger.debug  "line:"             if logger.debug?
-    logger.debug line.pretty_inspect  if logger.debug?
+    logger.debug { "line:" }
+    logger.debug { line.pretty_inspect }
 
 
     ##  note: chomp('') if is an empty string,
@@ -89,15 +89,15 @@ def parse_lines( input, &block )
     ##    use line.sub(/[\n\r]*$/, '') or similar instead - why? why not?
     line = line.chomp( '' )
     line = line.strip         ## strip leading and trailing whitespaces (space/tab) too
-    logger.debug line.pretty_inspect    if logger.debug?
+    logger.debug { line.pretty_inspect }
 
     if line.empty?             ## skip blank lines
-      logger.debug "skip blank line"    if logger.debug?
+      logger.debug { "skip blank line" }
       next
     end
 
     if line.start_with?( "#" )  ## skip comment lines
-      logger.debug "skip comment line"   if logger.debug?
+      logger.debug { "skip comment line" }
       next
     end
 
@@ -105,7 +105,7 @@ def parse_lines( input, &block )
     #          for  just make it "explicit" with /[ \t]+/
 
     values = line.split( /[ \t]+/ )
-    logger.debug values.pretty_inspect   if logger.debug?
+    logger.debug { values.pretty_inspect }
 
     if space
       ## e.g. translate _-+ etc. if configured to space
