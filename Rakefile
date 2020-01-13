@@ -8,7 +8,7 @@ Hoe.spec 'csvreader' do
   self.summary = "csvreader - read tabular data in the comma-separated values (csv) format the right way (uses best practices out-of-the-box with zero-configuration)"
   self.description = summary
 
-  self.urls = ['https://github.com/csvreader/csvreader']
+  self.urls = { "home" => 'https://github.com/csvreader/csvreader' }
 
   self.author = 'Gerald Bauer'
   self.email = 'wwwmake@googlegroups.com'
